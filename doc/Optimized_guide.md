@@ -10,15 +10,15 @@
 
 启用 RT-Studio 这个工具来编辑工程，有一个比较舒适的功能。你可以看到工程中参与编译的文件和未参与编译的文件。这个功能可以在这个位置来配置：
 
-![](.\figure\filter_01.jpg)
+![](./figure/filter_01.jpg)
 
 
 
-![](.\figure\filter_02.png)
+![](./figure/filter_02.png)
 
 通过调整这里的配置，就可以实现显示没有（此时是灰色的）参与编译的工程的效果；
 
-![](.\figure\prepare_00.png)
+![](./figure/prepare_00.png)
 
 通过这个效果，一些文件的参与与排除就能很简单的查看而且对整个工程做到心中有数。
 
@@ -26,15 +26,15 @@
 
 这个原始工程，理论上应该不包括多余的部分；可仅仅是一个 LED 工程，貌似并没有启用更复杂的功能，讲道理不应该占用如此高的空间。
 
-![zero_compiler_info](.\figure\zero_compiler_info.png)
+![zero_compiler_info](./figure/zero_compiler_info.png)
 
 我们观察左侧的工程参与编译的文件，就发现添加了一些诸如文件系统，POSIX标准之类的功能，我们没有启用；讲道理，这一块是不需要的，可是却仍然被默认添加到工程中。实际上，这是由于工程里的残留配置导致的。
 
-![](.\figure\zero_compiler_01.png)
+![](./figure/zero_compiler_01.png)
 
 取消掉无用的配置，并且编译，可以看到当前工程下的大小。
 
-![](.\figure\zero_prepare_02.png)
+![](./figure/zero_prepare_02.png)
 
 通过编译信息，我们还能查看到内存占用确实降低了；不过，此时我们还没有添加功能；
 
@@ -44,37 +44,37 @@ OK，接下来，我们一步步按照会议的 PPT 添加所需要的软件包�
 
 添加示例文件，使能 UART1 串口。
 
-![](.\figure\zero_prepare_03.png)
+![](./figure/zero_prepare_03.png)
 
 ### 3. 添加 Modbus 软件包
 
 添加 freemodbus 软件包，使能对应的 sample 文件并且编译。
 
-![](.\figure\zero_prepare_04.png)
+![](./figure/zero_prepare_04.png)
 
 ### 4. 添加 WIFI 功能的支持
 
 添加 WIFI 功能，记得需要打开 DFS，LIBC ，也就是我们准备阶段关闭的那个。
 
-![](.\figure\zero_prepare_05.png)
+![](./figure/zero_prepare_05.png)
 
 ### 5. 添加 MQTT 的支持
 
 添加 Kawaii-mqtt 软件包，修改保活时间，使能 sample 文件参与编译。
 
-![](.\figure\zero_prepare_06.png)
+![](./figure/zero_prepare_06.png)
 
 ### 6. 添加 SPI Flash 文件系统
 
 添加 SPI Flash 后，自动加入了 littlefs 文件系统。
 
-![](.\figure\zero_prepare_07.png)
+![](./figure/zero_prepare_07.png)
 
 ### 7. 添加 FTP 文件传输功能
 
 添加 FTP 的库文件，并且添加 modbus2mqtt.c 文件。
 
-![](.\figure\zero_prepare_08.png)
+![](./figure/zero_prepare_08.png)
 
 ## 二、裁剪
 
@@ -103,45 +103,45 @@ OK，接下来，我们一步步按照会议的 PPT 添加所需要的软件包�
 
 在一个文件上点开这个配置项，选中 “Debug” 选项就可以实现把文件排除在构建目录中。
 
-![](.\figure\reduce_00.png)
+![](./figure/reduce_00.png)
 
 另外通过 RT-Setting 取消掉 kawaii-mqtt 与 freemodbus 软件包中的 sample 文件。
 
-![](.\figure\reduce_01.png)
+![](./figure/reduce_01.png)
 
-![](.\figure\reduce_02.png)
+![](./figure/reduce_02.png)
 
 经过配置，代码的编译结果为：
 
-![](.\figure\reduce_03.png)
+![](./figure/reduce_03.png)
 
 ### 2. 去掉 lwip 中没有用到的功能
 
 关闭 IGMP 网络组播功能，关闭 ICMP 功能，由于 ICMP 功能被 PING 功能（lwip 配置项的下面部分）引用，所以要先取消 PING 功能才能关掉 ICMP 的功能。
 
-![](.\figure\reduce_04.png)
+![](./figure/reduce_04.png)
 
-![](.\figure\reduce_05.png)
+![](./figure/reduce_05.png)
 
 ### 3. 优化 lwip 的配置
 
 可以裁剪掉一部分的占用，来降低 RAM 的占用；lwip 的配置项主要集中在 lwipopt.h 与 lwip/opt.h 中。除了一些可以在 RT-Setting 中配置的，还有可以在头文件中直接修改。
 
-![](.\figure\reduce_06.png)
+![](./figure/reduce_06.png)
 
 ### 4. 去掉 ymodem 组件
 
 ymodem 组件，可以理解为是一个串口上的传输协议，ymodem 可以实现一些升级的服务；在我们的工程中，ymodem 功能其实并没有启用，我们完全可以去掉这个功能。但是在使用 RT-Setting 配置时，这个选项并不能直接关闭。原因是由于我们的 wifi 的一部分功能关联到了一部分的升级工作，而升级工作又关联到了 ymodem 功能。所以，我们需要修改 [Kconfig 文件](https://www.rt-thread.org/document/site/#/development-tools/kconfig/kconfig)与 [Sconscript 文件](https://www.rt-thread.org/document/site/#/development-tools/scons/scons)来避免 ymodem 功能参与编译。
 
-![](.\figure\reduce_07.png)
+![](./figure/reduce_07.png)
 
 Kconfig 文件是一个 python 脚本，可以使用 ```#```来注释掉 ymodem 的使用；修改完后，关闭 RT-Setting 后重新点开， 以让 RT-Setting 解析修改后的 Kconfig 脚本，然后记得关闭 RT_OTA_LIB 对的功能。
 
 ```Attention: 修改 Kconfig 后，应当关闭 RT-Setting 界面后重新打开并继续配置，否则配置选项会出现逻辑错误。```
 
-![](.\figure\reduce_08.png)
+![](./figure/reduce_08.png)
 
-![](.\figure\reduce_09.png)
+![](./figure/reduce_09.png)
 
 这个时候，点击编译工程，工程是会报错的。因为 ```rt_ota.h``` 的功能已经被我们删去了，工程链接时会出现问题。但是，功能又确实没有用到，所以需要修改```drv_wlan.c```下的代码，以避免出现编译错误。
 
@@ -223,25 +223,25 @@ static void wifi_init_thread_entry(void *parameter)
 
 通过上述 办法的调整，我们可以将工程简化到这个程度。
 
-![](.\figure\reduce_10.png)
+![](./figure/reduce_10.png)
 
 ### 5. 启用 Nano 的 Libc 库
 
 这个属于编译器的优化选项，启用更小的 C 库以降低编译内存的占用。
 
-![](.\figure\reduce_11.png)
+![](./figure/reduce_11.png)
 
-![](.\figure\reduce_12.png)
+![](./figure/reduce_12.png)
 
 ### 6. 启用 -Os 编译选项，进一步压缩固件大小
 
-![](.\figure\reduce_13.png)
+![](./figure/reduce_13.png)
 
 ### 7. 裁剪掉 Finish 组件
 
 Finish 组件，是我们 RT-Thread 系统的一个用于命令行的工具。可以实现通过命令行来调用某些函数，对于调试非常方便。但是对于一个释出的成品，finish 就不是那么重要了，所以我们裁撤掉。对于我们前面的使用用例，裁撤掉 finish 意味着不能使用命令行启动线程。所以，我们需要修改```modbus2mqtt.c```下的代码，以支持该线程的自动启动。我们在代码中添加 ```INIT_APP_EXPORT(modbus2mqtt)```代码，以支持线程自启动，避免使用手动输入命令启动代码。
 
-![](.\figure\reduce_14.png)
+![](./figure/reduce_14.png)
 
 ### 8. 去掉调试 LOG 的信息
 
@@ -249,7 +249,7 @@ Finish 组件，是我们 RT-Thread 系统的一个用于命令行的工具。�
 
 所以，取消掉，kawaii-mqtt 的 LOG 信息，也可以降低一些代码量。
 
-![](.\figure\reduce_15.png)
+![](./figure/reduce_15.png)
 
 仅通过配置，可以裁剪掉超过 50% 的代码量；对于一项产品来说，内存裁剪是一项细致的工作。通过删去不需要的代码来换取空间的节省，既可以节省 Flash 大小，又可以在产品选型上实现较小内存的芯片资源的适配。
 
